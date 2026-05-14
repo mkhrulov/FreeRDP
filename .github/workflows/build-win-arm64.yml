@@ -18,8 +18,6 @@ jobs:
           vcpkg install openssl:arm64-windows `
                         sdl2:arm64-windows `
                         sdl2-ttf:arm64-windows
-        env:
-          VCPKG_DEFAULT_BINARY_CACHE: ""  # отключаем кэш, чтобы не падало
 
       - name: Configure
         shell: cmd
@@ -36,3 +34,26 @@ jobs:
             -DWITH_PULSE=OFF ^
             -DWITH_X11=OFF ^
             -DWITH_WAYLAND=OFF ^
+            -B build
+
+      - name: Build
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsarm64.bat"
+          cmake --build build --config Release
+
+      - name: Collect artifacts
+        shell: cmd
+        run: |
+          mkdir output
+          copy build\client\Windows\Release\wfreerdp.exe output\ 2>nul
+          copy build\client\SDL\Release\sdl-freerdp.exe output\ 2>nul
+          xcopy /s /y build\*.dll output\ 2>nul
+          dir output\
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: freerdp-windows-arm64
+          path: output\
+          retention-days: 7
