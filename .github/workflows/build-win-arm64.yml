@@ -18,7 +18,8 @@ jobs:
           vcpkg install openssl:arm64-windows `
                         sdl2:arm64-windows `
                         sdl2-ttf:arm64-windows `
-                        ffmpeg:arm64-windows
+                        ffmpeg:arm64-windows `
+                        libusb:arm64-windows
 
       - name: Configure
         shell: cmd
