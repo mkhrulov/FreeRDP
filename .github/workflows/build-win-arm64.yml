@@ -17,7 +17,8 @@ jobs:
         run: |
           vcpkg install openssl:arm64-windows `
                         sdl2:arm64-windows `
-                        sdl2-ttf:arm64-windows
+                        sdl2-ttf:arm64-windows `
+                        ffmpeg:arm64-windows
 
       - name: Configure
         shell: cmd
@@ -34,9 +35,6 @@ jobs:
             -DWITH_PULSE=OFF ^
             -DWITH_X11=OFF ^
             -DWITH_WAYLAND=OFF ^
-            -DWITH_FFMPEG=OFF ^
-            -DWITH_DSP_FFMPEG=OFF ^
-            -DWITH_VIDEO_FFMPEG=OFF ^
             -B build
 
       - name: Build
