@@ -35,6 +35,7 @@ jobs:
             -DWITH_PULSE=OFF ^
             -DWITH_X11=OFF ^
             -DWITH_WAYLAND=OFF ^
+            -DWITH_CHANNEL_URBDRC=OFF ^
             -B build
 
       - name: Build
