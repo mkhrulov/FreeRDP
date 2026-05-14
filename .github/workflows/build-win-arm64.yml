@@ -1,0 +1,52 @@
+name: FreeRDP Windows ARM64
+
+on:
+  workflow_dispatch:  # запуск вручную по кнопке
+
+jobs:
+  build:
+    runs-on: windows-11-arm
+
+    steps:
+      - name: Checkout FreeRDP
+        uses: actions/checkout@v4
+
+      - name: Install dependencies via vcpkg
+        run: |
+          vcpkg install openssl:arm64-windows `
+                        sdl2:arm64-windows `
+                        sdl2-ttf:arm64-windows
+        env:
+          VCPKG_DEFAULT_BINARY_CACHE: C:\vcpkg-cache
+
+      - name: Configure
+        run: |
+          cmake -GNinja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=arm64-windows `
+            -DWITH_SERVER=OFF `
+            -DWITH_SHADOW=OFF `
+            -DWITH_PROXY=OFF `
+            -DWITH_CUPS=OFF `
+            -DWITH_PULSE=OFF `
+            -DWITH_X11=OFF `
+            -DWITH_WAYLAND=OFF `
+            -B build
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Collect artifacts
+        run: |
+          mkdir output
+          copy build\client\Windows\Release\wfreerdp.exe output\ 2>nul || true
+          copy build\client\SDL\Release\sdl-freerdp.exe output\ 2>nul || true
+          xcopy /s /y build\*.dll output\ 2>nul || true
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: freerdp-windows-arm64
+          path: output\
+          retention-days: 7
