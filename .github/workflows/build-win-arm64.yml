@@ -45,18 +45,11 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsarm64.bat"
           cmake --build build --config Release
 
-      - name: Find legacy.dll
-        shell: cmd
-        run: |
-          echo === vcpkg installed ===
-          dir /s /b "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\" | findstr legacy
-          echo === libcrypto location ===
-          dir /s /b build\ | findstr libcrypto
-          
       - name: Collect artifacts
         shell: cmd
         run: |
           mkdir output
+          mkdir output\ossl-modules
           copy build\client\Windows\cli\wfreerdp.exe output\
           copy build\client\SDL\SDL2\sdl-freerdp.exe output\
           copy build\client\Windows\wfreerdp-client3.dll output\
@@ -72,9 +65,29 @@ jobs:
           copy build\client\SDL\SDL2\z.dll output\
           xcopy /s /y build\libfreerdp\*.dll output\
           xcopy /s /y build\winpr\libwinpr\*.dll output\
-          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\legacy.dll" output\ 2>nul
-          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\ossl-modules\legacy.dll" output\ossl-modules\ 2>nul          
+          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\legacy.dll" output\ossl-modules\
           dir output\
+          dir output\ossl-modules\
+
+      - name: Create openssl.cnf
+        shell: cmd
+        run: |
+          (
+            echo openssl_conf = openssl_init
+            echo.
+            echo [openssl_init]
+            echo providers = provider_sect
+            echo.
+            echo [provider_sect]
+            echo default = default_sect
+            echo legacy = legacy_sect
+            echo.
+            echo [default_sect]
+            echo activate = 1
+            echo.
+            echo [legacy_sect]
+            echo activate = 1
+          ) > output\openssl.cnf
 
       - name: Upload
         uses: actions/upload-artifact@v4
