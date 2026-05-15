@@ -36,6 +36,7 @@ jobs:
             -DWITH_PULSE=OFF ^
             -DWITH_X11=OFF ^
             -DWITH_WAYLAND=OFF ^
+            -DOPENSSL_ENABLE_LEGACY_PROVIDER=ON ^
             -B build
 
       - name: Build
@@ -63,6 +64,8 @@ jobs:
           copy build\client\SDL\SDL2\z.dll output\
           xcopy /s /y build\libfreerdp\*.dll output\
           xcopy /s /y build\winpr\libwinpr\*.dll output\
+          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\legacy.dll" output\ 2>nul
+          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\ossl-modules\legacy.dll" output\ossl-modules\ 2>nul          
           dir output\
 
       - name: Upload
