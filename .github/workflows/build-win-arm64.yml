@@ -45,6 +45,14 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsarm64.bat"
           cmake --build build --config Release
 
+      - name: Find legacy.dll
+        shell: cmd
+        run: |
+          echo === vcpkg installed ===
+          dir /s /b "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\" | findstr legacy
+          echo === libcrypto location ===
+          dir /s /b build\ | findstr libcrypto
+          
       - name: Collect artifacts
         shell: cmd
         run: |
