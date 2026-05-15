@@ -15,7 +15,7 @@ jobs:
 
       - name: Install dependencies via vcpkg
         run: |
-          vcpkg install openssl:arm64-windows `
+          vcpkg install "openssl[legacy]:arm64-windows" `
                         sdl2:arm64-windows `
                         sdl2-ttf:arm64-windows `
                         ffmpeg:arm64-windows `
