@@ -56,9 +56,21 @@ jobs:
         shell: cmd
         run: |
           mkdir output
-          copy build\client\Windows\Release\wfreerdp.exe output\ 2>nul
-          copy build\client\SDL\Release\sdl-freerdp.exe output\ 2>nul
-          xcopy /s /y build\*.dll output\ 2>nul
+          copy build\client\Windows\cli\wfreerdp.exe output\
+          copy build\client\SDL\SDL2\sdl-freerdp.exe output\
+          copy build\client\Windows\wfreerdp-client3.dll output\
+          copy build\client\common\freerdp-client3.dll output\
+          copy build\client\common\libusb-1.0.dll output\
+          copy build\client\SDL\SDL2\SDL2.dll output\
+          copy build\client\SDL\SDL2\SDL2_ttf.dll output\
+          copy build\client\SDL\SDL2\brotlicommon.dll output\
+          copy build\client\SDL\SDL2\brotlidec.dll output\
+          copy build\client\SDL\SDL2\bz2.dll output\
+          copy build\client\SDL\SDL2\freetype.dll output\
+          copy build\client\SDL\SDL2\libpng16.dll output\
+          copy build\client\SDL\SDL2\z.dll output\
+          xcopy /s /y build\libfreerdp\*.dll output\
+          xcopy /s /y build\winpr\libwinpr\*.dll output\
           dir output\
 
       - name: Upload
