@@ -23,13 +23,6 @@ jobs:
                         ffmpeg:arm64-windows `
                         libusb:arm64-windows
 
-      - name: Configure OpenSSL legacy provider
-        shell: cmd
-        run: |
-          mkdir "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\ossl-modules"
-          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\legacy.dll" ^
-               "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\ossl-modules\legacy.dll"
-
       - name: Configure
         shell: cmd
         run: |
@@ -59,6 +52,7 @@ jobs:
         run: |
           mkdir output
           mkdir output\ossl-modules
+
           copy build\client\Windows\cli\wfreerdp.exe output\
           copy build\client\SDL\SDL2\sdl-freerdp.exe output\
           copy build\client\Windows\wfreerdp-client3.dll output\
@@ -74,7 +68,15 @@ jobs:
           copy build\client\SDL\SDL2\z.dll output\
           xcopy /s /y build\libfreerdp\*.dll output\
           xcopy /s /y build\winpr\libwinpr\*.dll output\
+
+          REM OpenSSL DLLs (needed on machines without vcpkg)
+          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\libssl-3-arm64.dll" output\
+          copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\libcrypto-3-arm64.dll" output\
+
+          REM Legacy provider for RC4 (required for RDP licensing)
           copy "%VCPKG_INSTALLATION_ROOT%\installed\arm64-windows\bin\legacy.dll" output\ossl-modules\
+
+          REM openssl.cnf activating legacy provider
           (
             echo openssl_conf = openssl_init
             echo.
@@ -91,6 +93,23 @@ jobs:
             echo [legacy_sect]
             echo activate = 1
           ) > output\openssl.cnf
+
+          REM Launcher that sets OPENSSL_CONF and OPENSSL_MODULES before running sdl-freerdp
+          (
+            echo @echo off
+            echo set "OPENSSL_CONF=%%~dp0openssl.cnf"
+            echo set "OPENSSL_MODULES=%%~dp0ossl-modules"
+            echo "%%~dp0sdl-freerdp.exe" %%*
+          ) > output\sdl-freerdp.bat
+
+          REM Same for wfreerdp
+          (
+            echo @echo off
+            echo set "OPENSSL_CONF=%%~dp0openssl.cnf"
+            echo set "OPENSSL_MODULES=%%~dp0ossl-modules"
+            echo "%%~dp0wfreerdp.exe" %%*
+          ) > output\wfreerdp.bat
+
           dir output\
           dir output\ossl-modules\
 
